@@ -4,72 +4,204 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 TOPIC_KEYWORDS = {
+
+    # =======================
+    # LLM Infra / 推理 & 服务
+    # =======================
     "LLM_Infra": [
-        "llm", "inference", "serving", "vllm", "llama.cpp",
-        "quantization", "high-throughput", "transformer",
-        "rag", "semantic retrieval", "context-aware"
+        "llm", "large language model",
+        "inference", "serving", "inference server",
+        "high throughput", "low latency",
+        "distributed inference", "batching",
+        "kv cache", "context length",
+        "quantization", "int8", "int4",
+        "model serving", "model runtime",
+        "transformer", "decoder-only",
+        "rag", "retrieval augmented generation",
+        "semantic retrieval", "vector search",
+        "gateway", "api gateway",
+        "llama", "mistral", "gemini", "deepseek"
     ],
+
+    # =======================
+    # Multimodal / 音视频 & OCR
+    # =======================
     "Multimodal_AI": [
-        "tts", "speech-to-text", "transcription", "ocr",
-        "avatar", "digital human", "song generation",
-        "audio", "video generation", "pdf linearization"
+        "multimodal",
+        "tts", "text to speech",
+        "speech to text", "asr", "transcription",
+        "voice cloning", "speech synthesis",
+        "ocr", "pdf", "document understanding",
+        "pdf linearization",
+        "image generation", "video generation",
+        "face swap", "deepfake",
+        "avatar", "digital human",
+        "song generation", "music generation",
+        "audio", "video", "vision"
     ],
+
+    # =======================
+    # Agent / MCP / 自动化
+    # =======================
     "Agent_MCP": [
-        "agent", "coding agent", "mcp", "model context protocol",
-        "skills", "workflow", "prompt engineering", "system prompt",
-        "claude code", "autonomous"
+        "agent", "ai agent", "coding agent",
+        "autonomous", "agentic",
+        "mcp", "model context protocol",
+        "skills", "tool calling",
+        "workflow", "orchestration",
+        "prompt engineering", "system prompt",
+        "planning", "reasoning",
+        "claude", "claude code",
+        "copilot", "assistant runtime",
+        "multi-agent", "agent swarm"
     ],
+
+    # =======================
+    # Database / Storage
+    # =======================
     "Database_Storage": [
-        "database", "postgres", "mysql", "mariadb", "sqlite",
-        "redis", "mongodb", "timescale", "time-series",
-        "kv", "key-value", "object store", "s3", "zfs"
+        "database", "distributed database",
+        "sql", "nosql",
+        "postgres", "postgresql",
+        "mysql", "mariadb", "sqlite",
+        "mongodb", "redis",
+        "timeseries", "time-series",
+        "olap", "analytics database",
+        "data warehouse",
+        "object storage", "s3",
+        "kv store", "key value",
+        "lakehouse", "parquet"
     ],
+
+    # =======================
+    # System / OS / Runtime
+    # =======================
     "System_Kernel": [
-        "kernel", "os", "xv6", "linux distribution",
-        "interpreter", "emulator", "x86-64 emulator",
-        "runtime", "virtual machine"
+        "kernel", "operating system",
+        "linux", "wayland",
+        "runtime", "interpreter",
+        "virtual machine", "microvm",
+        "emulator", "simulation",
+        "x86", "arm",
+        "scheduler", "memory allocator",
+        "profiling", "tracing"
     ],
+
+    # =======================
+    # Embedded / Firmware
+    # =======================
     "Embedded_Firmware": [
-        "firmware", "embedded", "freertos", "zephyr",
-        "iot", "esp32", "microcontroller", "u-boot",
-        "flight control", "navigation", "keyboard firmware",
-        "qmk", "zmk"
+        "embedded", "firmware",
+        "microcontroller", "mcu",
+        "freertos", "zephyr",
+        "iot", "esp32", "esp8266",
+        "flight controller",
+        "navigation",
+        "keyboard firmware", "qmk", "zmk",
+        "bare metal"
     ],
+
+    # =======================
+    # Network / Security
+    # =======================
     "Networking_Security": [
-        "network", "wireguard", "overlay network", "proxy",
-        "gateway", "traefik", "sso", "mfa", "encryption",
-        "tls", "vault", "secrets management", "honeypot",
-        "detection tests", "sigma rule"
+        "network", "networking",
+        "proxy", "reverse proxy",
+        "gateway", "load balancer",
+        "vpn", "wireguard",
+        "encryption", "tls", "ssl",
+        "security", "vulnerability",
+        "scanner", "sbom",
+        "xdr", "siem",
+        "auth", "sso", "oauth"
     ],
+
+    # =======================
+    # DevTools / 工具链
+    # =======================
     "DevTool_Testing": [
-        "framework", "sdk", "library", "testing framework",
-        "unit-test", "mocking", "profiling", "tracing",
-        "ci/cd", "deployment", "docker"
+        "developer tool", "devtool",
+        "sdk", "framework", "library",
+        "testing", "unit test",
+        "mock", "fuzzing",
+        "ci", "cd", "pipeline",
+        "build system",
+        "docker", "container",
+        "deployment"
     ],
+
+    # =======================
+    # CLI / Editor / 本地工具
+    # =======================
     "CLI_Editor": [
-        "cli", "terminal", "shell", "prompt renderer",
-        "oh-my-posh", "text editor", "hex editor",
-        "notepad", "reverse engineering"
+        "cli", "command line",
+        "terminal", "shell",
+        "prompt", "prompt renderer",
+        "text editor", "code editor",
+        "reverse engineering",
+        "disassembler", "decompiler",
+        "hex editor"
     ],
+
+    # =======================
+    # Web App / 监控 / 自托管
+    # =======================
     "WebApp_Monitoring": [
-        "self-hosted", "web ui", "dashboard", "monitoring",
-        "uptime", "alerting", "rss", "news aggregation",
-        "youtube downloader"
+        "web", "web ui",
+        "self hosted", "self-hosted",
+        "dashboard",
+        "monitoring", "metrics",
+        "alerting", "uptime",
+        "rss", "news aggregation",
+        "crawler", "scraper",
+        "youtube downloader",
+        "web service"
     ],
+
+    # =======================
+    # 游戏 / 物理 / 图形
+    # =======================
     "Game_Physics": [
-        "game engine", "physics engine", "collision detection",
-        "rigid body", "rendering", "godot", "graphics",
-        "gpu kernel"
+        "game engine",
+        "physics engine",
+        "collision detection",
+        "rigid body",
+        "rendering", "graphics",
+        "2d engine", "3d engine",
+        "godot",
+        "gpu", "shader"
     ],
+
+    # =======================
+    # 集合 / 教育 / 资料
+    # =======================
     "Collection_Edu": [
-        "awesome", "curated list", "collection", "roadmap",
-        "programming books", "algorithms", "educational"
+        "awesome",
+        "curated list",
+        "collection",
+        "roadmap",
+        "tutorial",
+        "learning",
+        "educational",
+        "algorithms",
+        "data structures",
+        "book"
     ],
+
+    # =======================
+    # 金融 / 量化
+    # =======================
     "FinTech": [
-        "algorithmic trading", "quant", "backtesting",
-        "financial library"
+        "fintech",
+        "trading",
+        "algorithmic trading",
+        "quant", "quantitative",
+        "backtesting",
+        "market data",
+        "financial system"
     ]
 }
+
 
 _TOPIC_NAMES = list(TOPIC_KEYWORDS.keys())
 _TOPIC_DOCS = [' '.join(TOPIC_KEYWORDS[t]) for t in _TOPIC_NAMES]
