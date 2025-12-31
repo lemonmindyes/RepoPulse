@@ -1,0 +1,107 @@
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich import box
+
+
+def print_topics_cli_rich(
+    data: dict,
+    *,
+    top_k_topics: int = 3,
+    top_k_repos: int = 3,
+):
+    console = Console()
+
+    # 按热度排序
+    topics = sorted(
+        data.items(),
+        key=lambda x: x[1]["heat"],
+        reverse=True
+    )[:top_k_topics]
+
+    console.print(
+        Panel(
+            Text("🔥 GitHub Trending Topics", justify="center", style="bold white"),
+            style="bold cyan",
+            padding=(1, 2),
+        )
+    )
+
+    for topic, info in topics:
+        heat = info["heat"]
+        repo_count = info["repo_count"]
+        avg_score = info["avg_score"]
+
+        # 🔥 Heat 颜色映射
+        if heat >= 70:
+            heat_style = "bold red"
+        elif heat >= 50:
+            heat_style = "bold orange3"
+        else:
+            heat_style = "bold yellow"
+
+        header = Text()
+        header.append(f"🔥 {topic}\n", style="bold magenta")
+        header.append(f"Heat: ", style="dim")
+        header.append(f"{heat:.2f}", style=heat_style)
+        header.append("   Repos: ", style="dim")
+        header.append(str(repo_count), style="bold white")
+        header.append("   AvgScore: ", style="dim")
+        header.append(f"{avg_score:.3f}", style="bold green")
+
+        console.print(
+            Panel(
+                header,
+                style="bright_black",
+                padding=(1, 2),
+            )
+        )
+
+        table = Table(
+            box=box.MINIMAL_DOUBLE_HEAD,
+            show_edge=False,
+            header_style="bold cyan",
+        )
+
+        table.add_column("#", justify="right", style="dim", width=3)
+        table.add_column("Repository", style="bold white", min_width=28)
+        table.add_column("Lang", justify="center", style="green")
+        table.add_column("⭐ Stars", justify="right")
+        table.add_column("🚀 Daily", justify="right")
+        table.add_column("Score", justify="right", style="cyan")
+
+        # Repo 排序：daily_stars + topic_score
+        repos = sorted(
+            info["repos"],
+            key=lambda r: (
+                int(r.get("daily_stars") or 0),
+                r["topic_scores"].get(topic, 0.0)
+            ),
+            reverse=True
+        )[:top_k_repos]
+
+        for i, r in enumerate(repos, 1):
+            stars = int(r.get("repo_stars") or 0)
+            daily = int(r.get("daily_stars") or 0)
+            lang = r.get("repo_language") or "-"
+            score = r["topic_scores"].get(topic, 0.0)
+
+            # daily stars 高亮
+            daily_style = (
+                "bold red" if daily >= 500 else
+                "bold orange3" if daily >= 100 else
+                "white"
+            )
+
+            table.add_row(
+                str(i),
+                f"{r['repo_author']}/{r['repo_name']}",
+                lang,
+                f"{stars:,}",
+                Text(f"{daily}", style=daily_style),
+                f"{score:.3f}",
+            )
+
+        console.print(table)
+        console.print()  # 空行
