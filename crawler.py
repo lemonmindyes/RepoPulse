@@ -19,14 +19,18 @@ def keep_latest_repo(data: list[dict]) -> list[dict]:
     return result
 
 
-def get_trending():
-    urls = [
-        'https://github.com/trending', # trending主页面
-        'https://github.com/trending/python?since=daily', # python trending页面
-        'https://github.com/trending/go?since=daily', # go trending页面
-        'https://github.com/trending/c?since=daily', # c trending页面
-        'https://github.com/trending/c++?since=daily' # c++ trending页面
-    ]
+def get_trending(languages: list[str] = None):
+    if languages is None:
+        # 预置一些常见语言的趋势页面
+        urls = [
+            'https://github.com/trending', # trending主页面
+            'https://github.com/trending/python?since=daily', # python trending页面
+            'https://github.com/trending/go?since=daily', # go trending页面
+            'https://github.com/trending/c?since=daily', # c trending页面
+            'https://github.com/trending/c++?since=daily' # c++ trending页面
+        ]
+    else:
+        urls = [f'https://github.com/trending/{language}?since=daily' for language in languages]
     headers = {
         'User-Agent': UserAgent().random
     }

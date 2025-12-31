@@ -8,7 +8,7 @@ from topic import compute_topic_heat
 
 if __name__ == '__main__':
     # 1. 获取 trending
-    get_trending()
+    get_trending(languages = ['java'])
     # 2. 分析 trending topic
     with open('trending.json', 'r', encoding = 'utf-8') as f:
         data = json.load(f)
