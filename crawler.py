@@ -56,7 +56,10 @@ def get_trending(languages: list[str] = None):
                 repo_language = article.xpath('./div[2]/span[@class="d-inline-block ml-0 mr-3"]/span[2]/text()')[0]
             repo_stars = article.xpath('./div[2]/a[1]/text()')[0].strip().replace(',', '') # 仓库 stars
             repo_forks = article.xpath('./div[2]/a[2]/text()')[0].strip().replace(',', '') # 仓库 forks
-            daily_stars = ''.join(article.xpath('./div[2]/span[3]/text()')).strip().split(' ')[0] # 今日 stars
+            # 今日 stars
+            texts = article.xpath('./div[2]/span[3]/text()')
+            raw = ''.join(texts).strip()
+            daily_stars = raw.replace(',', '').split()[0]
             data.append({
                 'repo_author': repo_author,
                 'repo_name': repo_name,
