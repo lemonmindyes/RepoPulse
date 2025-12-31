@@ -77,7 +77,7 @@ _VECTORIZER = TfidfVectorizer(
     stop_words = 'english',
     ngram_range = (1, 3)
 )
-_TOPIC_VECS = _VECTORIZER.fit_transform(_TOPIC_DOCS)
+_TOPIC_VECS = _VECTORIZER.fit_transform(_TOPIC_DOCS) # [n_topics, n_words]
 
 
 def classify_repo(text: str):
@@ -85,35 +85,36 @@ def classify_repo(text: str):
     input: repo_name + repo_description
     output: best_topic, (topic: score)
     """
-    repo_vec = _VECTORIZER.transform([text])
-    sims = cosine_similarity(repo_vec, _TOPIC_VECS)[0]
+    repo_vec = _VECTORIZER.transform([text]) # [1, n_words]
+    sims = cosine_similarity(repo_vec, _TOPIC_VECS)[0] # [n_topics]
 
-    scores = {
+    topic_scores = {
         topic: float(score)
         for topic, score in zip(_TOPIC_NAMES, sims)
     }
-    best_topic = max(scores, key = scores.get)
+    best_topic = max(topic_scores, key = topic_scores.get)
 
-    if scores[best_topic] < 0.12:
-        best_topic = "Unknown"
-    return best_topic, scores
+    if topic_scores[best_topic] < 0.1:
+        best_topic = 'Unknown'
+    return best_topic, topic_scores
 
 
 def tag_repo(repo: dict):
     text = f'{repo.get('repo_name', '')} {repo.get('repo_describe', '')}'
-    topic, scores = classify_repo(text)
+    topic, topic_scores = classify_repo(text)
 
     repo['topic'] = topic
-    repo['topic_scores'] = scores
+    repo['topic_scores'] = topic_scores
     return repo
 
 
+# 按 topic 聚合 repo
 def aggregate_by_best_topic(repos):
-    buckets = defaultdict(list)
+    buckets = defaultdict(list) # 当key不存在时会自动创建一个
 
     for r in repos:
-        topic = r.get("topic")
-        if topic and topic != "Unknown":
+        topic = r.get('topic')
+        if topic and topic != 'Unknown':
             buckets[topic].append(r)
 
     return dict(buckets)
