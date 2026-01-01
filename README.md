@@ -19,7 +19,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 项目目前支持以下技术话题分类：
 
 - **LLM_Infra**: 大语言模型基础设施
-- **Multimodal AI**: 多模态人工智能
+- **Multimodal_AI**: 多模态人工智能
 - **Agent_MCP**: 智能代理和模型上下文协议
 - **Database_Storage**: 数据库和存储系统
 - **System_Kernel**: 系统内核开发
@@ -64,6 +64,23 @@ pip install requests lxml fake_useragent scikit-learn rich
 
 ```bash
 python main.py
+```
+
+### 命令行参数
+
+你可以使用以下命令行参数来自定义分析：
+
+- `--time-range`: 设置分析时间范围，可选值为 `daily` (每日)、`weekly` (每周)、`monthly` (每月)，默认为 `daily`
+- `--languages`: 指定要分析的编程语言列表，默认为 `python c++ c java javascript typescript go rust`
+
+例如：
+
+```bash
+# 分析每日趋势，仅包含Python和Go语言
+python main.py --time-range daily --languages python go
+
+# 分析每周趋势，包含多种语言
+python main.py --time-range weekly --languages python java javascript
 ```
 
 ### 各模块功能
