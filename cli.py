@@ -10,7 +10,7 @@ def print_topics_cli_rich(
     *,
     top_k_topics: int = 5,
     top_k_repos: int = 5,
-    date_range: str = 'daily'
+    time_range: str = 'daily'
 ):
     console = Console()
 
@@ -69,7 +69,7 @@ def print_topics_cli_rich(
         table.add_column('Repository', style = 'bold white', min_width = 28)
         table.add_column('Lang', justify = 'center', style = 'green')
         table.add_column('⭐ Stars', justify = 'right')
-        table.add_column(f'🚀 {date_range}', justify = 'right')
+        table.add_column(f'🚀 {time_range}', justify = 'right')
         table.add_column('Score', justify = 'right', style = 'cyan')
 
         # Repo 排序：date_range + topic_score

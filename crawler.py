@@ -19,22 +19,22 @@ def keep_latest_repo(data: list[dict]) -> list[dict]:
     return result
 
 
-def get_trending(languages: list[str] = None, date_range: str = 'daily'):
+def get_trending(languages: list[str] = None, time_range: str = 'daily'):
     if languages is None:
         # 预置一些常见语言的趋势页面
         urls = [
             'https://github.com/trending', # 默认 trending页面
-            f'https://github.com/trending/python?since={date_range}', # python trending页面
-            f'https://github.com/trending/go?since={date_range}', # go trending页面
-            f'https://github.com/trending/c?since={date_range}', # c trending页面
-            f'https://github.com/trending/c++?since={date_range}' # c++ trending页面
-            f'https://github.com/trending/javascript?since={date_range}', # javascript trending页面
-            f'https://github.com/trending/typescript?since={date_range}', # typescript trending页面
+            f'https://github.com/trending/python?since={time_range}', # python trending页面
+            f'https://github.com/trending/go?since={time_range}', # go trending页面
+            f'https://github.com/trending/c?since={time_range}', # c trending页面
+            f'https://github.com/trending/c++?since={time_range}' # c++ trending页面
+            f'https://github.com/trending/javascript?since={time_range}', # javascript trending页面
+            f'https://github.com/trending/typescript?since={time_range}', # typescript trending页面
         ]
     else:
         urls = ['https://github.com/trending'] # 默认 trending页面
         for language in languages:
-            urls.append(f'https://github.com/trending/{language}?since={date_range}')
+            urls.append(f'https://github.com/trending/{language}?since={time_range}')
     headers = {
         'User-Agent': UserAgent().random
     }
