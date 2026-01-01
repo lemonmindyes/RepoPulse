@@ -19,18 +19,22 @@ def keep_latest_repo(data: list[dict]) -> list[dict]:
     return result
 
 
-def get_trending(languages: list[str] = None):
+def get_trending(languages: list[str] = None, date_range: str = 'daily'):
     if languages is None:
         # 预置一些常见语言的趋势页面
         urls = [
-            'https://github.com/trending', # trending主页面
-            'https://github.com/trending/python?since=daily', # python trending页面
-            'https://github.com/trending/go?since=daily', # go trending页面
-            'https://github.com/trending/c?since=daily', # c trending页面
-            'https://github.com/trending/c++?since=daily' # c++ trending页面
+            'https://github.com/trending', # 默认 trending页面
+            f'https://github.com/trending/python?since={date_range}', # python trending页面
+            f'https://github.com/trending/go?since={date_range}', # go trending页面
+            f'https://github.com/trending/c?since={date_range}', # c trending页面
+            f'https://github.com/trending/c++?since={date_range}' # c++ trending页面
+            f'https://github.com/trending/javascript?since={date_range}', # javascript trending页面
+            f'https://github.com/trending/typescript?since={date_range}', # typescript trending页面
         ]
     else:
-        urls = [f'https://github.com/trending/{language}?since=daily' for language in languages]
+        urls = ['https://github.com/trending'] # 默认 trending页面
+        for language in languages:
+            urls.append(f'https://github.com/trending/{language}?since={date_range}')
     headers = {
         'User-Agent': UserAgent().random
     }
@@ -59,7 +63,7 @@ def get_trending(languages: list[str] = None):
             # 今日 stars
             texts = article.xpath('./div[2]/span[3]/text()')
             raw = ''.join(texts).strip()
-            daily_stars = raw.replace(',', '').split()[0]
+            added_stars = raw.replace(',', '').split()[0]
             data.append({
                 'repo_author': repo_author,
                 'repo_name': repo_name,
@@ -67,7 +71,7 @@ def get_trending(languages: list[str] = None):
                 'repo_language': repo_language,
                 'repo_stars': repo_stars,
                 'repo_forks': repo_forks,
-                'daily_stars': daily_stars
+                'added_stars': added_stars
             })
     data = keep_latest_repo(data)
     with open('trending.json', 'w', encoding = 'utf-8') as f:

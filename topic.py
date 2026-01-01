@@ -27,15 +27,15 @@ def compute_topic_heat(buckets: dict):
             scores = r.get('topic_scores', {})
             topic_score = float(scores.get(topic, 0.0))
 
-            daily_stars = int(r.get('daily_stars') or 0)
+            added_stars = int(r.get('added_stars') or 0)
             repo_stars = int(r.get('repo_stars') or 0)
             repo_forks = int(r.get('repo_forks') or 0)
 
             heat = (
                 topic_score
-                * math.log1p(daily_stars + 1)
-                * math.log1p(repo_stars + 1)
-                * math.log1p(repo_forks + 1)
+                * math.log1p(added_stars)
+                * math.log1p(repo_stars)
+                * math.log1p(repo_forks)
             )
 
             total_heat += heat

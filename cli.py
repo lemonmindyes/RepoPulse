@@ -10,6 +10,7 @@ def print_topics_cli_rich(
     *,
     top_k_topics: int = 5,
     top_k_repos: int = 5,
+    date_range: str = 'daily'
 ):
     console = Console()
 
@@ -68,14 +69,14 @@ def print_topics_cli_rich(
         table.add_column('Repository', style = 'bold white', min_width = 28)
         table.add_column('Lang', justify = 'center', style = 'green')
         table.add_column('⭐ Stars', justify = 'right')
-        table.add_column('🚀 Daily', justify = 'right')
+        table.add_column(f'🚀 {date_range}', justify = 'right')
         table.add_column('Score', justify = 'right', style = 'cyan')
 
-        # Repo 排序：daily_stars + topic_score
+        # Repo 排序：date_range + topic_score
         repos = sorted(
             info['repos'],
             key = lambda r: (
-                int(r.get('daily_stars') or 0),
+                int(r.get('added_stars') or 0),
                 r['topic_scores'].get(topic, 0.0)
             ),
             reverse = True
@@ -83,14 +84,14 @@ def print_topics_cli_rich(
 
         for i, r in enumerate(repos, 1):
             stars = int(r.get('repo_stars') or 0)
-            daily = int(r.get('daily_stars') or 0)
+            added_stars = int(r.get('added_stars') or 0)
             lang = r.get('repo_language') or '-'
             score = r['topic_scores'].get(topic, 0.0)
 
             # daily stars 高亮
-            daily_style = (
-                'bold red' if daily >= 500 else
-                'bold orange3' if daily >= 100 else
+            added_stars_style = (
+                'bold red' if added_stars >= 500 else
+                'bold orange3' if added_stars >= 100 else
                 'white'
             )
 
@@ -99,7 +100,7 @@ def print_topics_cli_rich(
                 f'{r['repo_author']}/{r['repo_name']}',
                 lang,
                 f'{stars:,}',
-                Text(f'{daily}', style = daily_style),
+                Text(f'{added_stars}', style = added_stars_style),
                 f'{score:.3f}',
             )
 
