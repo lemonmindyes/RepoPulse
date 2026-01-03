@@ -19,10 +19,24 @@ def keep_latest_repo(data: list[dict]) -> list[dict]:
     return result
 
 
+# 获取仓库详细页面信息
+# def get_repo_detail_info(repo_url: str, headers: dict):
+#     response = requests.get(repo_url, headers = headers, timeout = 5)
+#     tree = etree.HTML(response.text)
+#
+#     repo_topics = tree.xpath('//div[@class="BorderGrid about-margin"]/div[1]//div[@class="hide-sm hide-md"]'
+#                              '/div[@class="my-3"]')
+#     if not repo_topics:
+#         return []
+#     else:
+#         repo_topics = [s.strip() for s in repo_topics[0].xpath('.//text()') if s.strip()]
+#     return repo_topics
+
+
 def get_trending(languages: list[str] = None, time_range: str = 'daily'):
     if languages is None:
         # 预置一些常见语言的趋势页面
-        urls = [
+        article_urls = [
             'https://github.com/trending', # 默认 trending页面
             f'https://github.com/trending/python?since={time_range}', # python trending页面
             f'https://github.com/trending/go?since={time_range}', # go trending页面
@@ -32,16 +46,17 @@ def get_trending(languages: list[str] = None, time_range: str = 'daily'):
             f'https://github.com/trending/typescript?since={time_range}', # typescript trending页面
         ]
     else:
-        urls = ['https://github.com/trending'] # 默认 trending页面
+        article_urls = ['https://github.com/trending'] # 默认 trending页面
         for language in languages:
-            urls.append(f'https://github.com/trending/{language}?since={time_range}')
+            article_urls.append(f'https://github.com/trending/{language}?since={time_range}')
     headers = {
         'User-Agent': UserAgent().random
     }
     data = []
 
-    for url in urls:
-        response = requests.get(url, headers = headers)
+    base_repo_url = 'https://github.com'
+    for article_url in article_urls:
+        response = requests.get(article_url, headers = headers, timeout = 5)
         tree = etree.HTML(response.text)
 
         articles = tree.xpath('//div[@class="Box"]/div[2]/article')
@@ -61,9 +76,14 @@ def get_trending(languages: list[str] = None, time_range: str = 'daily'):
             repo_stars = article.xpath('./div[2]/a[1]/text()')[0].strip().replace(',', '') # 仓库 stars
             repo_forks = article.xpath('./div[2]/a[2]/text()')[0].strip().replace(',', '') # 仓库 forks
             # 今日 stars
-            texts = article.xpath('./div[2]/span[3]/text()')
+            texts = article.xpath('./div[2]/span[@class="d-inline-block float-sm-right"]/text()')
             raw = ''.join(texts).strip()
             added_stars = raw.replace(',', '').split()[0]
+            # 获取仓库详细页面信息
+            # repo_url = f'{base_repo_url}/{repo_author}/{repo_name}'
+            # repo_topics = get_repo_detail_info(repo_url, headers)
+
+            # 保存信息
             data.append({
                 'repo_author': repo_author,
                 'repo_name': repo_name,
@@ -71,7 +91,8 @@ def get_trending(languages: list[str] = None, time_range: str = 'daily'):
                 'repo_language': repo_language,
                 'repo_stars': repo_stars,
                 'repo_forks': repo_forks,
-                'added_stars': added_stars
+                'added_stars': added_stars,
+                # 'repo_topics': repo_topics
             })
     data = keep_latest_repo(data)
     with open('trending.json', 'w', encoding = 'utf-8') as f:
