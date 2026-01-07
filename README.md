@@ -13,6 +13,8 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 - **热度计算**：基于仓库的每日星数和总星数计算话题热度
 - **美观的终端界面**：使用 Rich 库展示漂亮的终端界面
 - **多语言支持**：支持 Python、Go、C、C++ 等多种编程语言的仓库
+- **异步爬取**：使用 asyncio 和 aiohttp 实现高效并发爬取，大幅提升数据获取速度
+- **代理支持**：支持通过代理访问 GitHub（默认配置为 http://127.0.0.1:7890）以提高爬取稳定性
 
 ## 📊 话题分类
 
@@ -37,7 +39,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 ### 依赖要求
 
 ```bash
-pip install requests lxml fake_useragent scikit-learn rich
+pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
 ```
 
 ### 安装步骤
@@ -55,7 +57,7 @@ pip install -r requirements.txt
 
 如果项目根目录没有 requirements.txt 文件，可以手动安装依赖：
 ```bash
-pip install requests lxml fake_useragent scikit-learn rich
+pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
 ```
 
 ## 🚀 使用方法
@@ -85,7 +87,7 @@ python main.py --time-range weekly --languages python java javascript
 
 ### 各模块功能
 
-- **crawler.py**: 抓取 GitHub Trending 仓库数据
+- **crawler.py**: 抓取 GitHub Trending 仓库数据（支持异步并发和代理访问）
 - **analysis.py**: 分析仓库并进行话题分类
 - **topic.py**: 计算话题热度
 - **cli.py**: 在终端中展示结果
@@ -209,3 +211,5 @@ RepoPulse/
   - [lxml](https://lxml.de/) - XML 和 HTML 处理库
   - [scikit-learn](https://scikit-learn.org/) - 机器学习库
   - [rich](https://rich.readthedocs.io/) - 终端美化库
+  - [aiohttp](https://aiohttp.readthedocs.io/) - 异步 HTTP 客户端/服务器库
+  - [certifi](https://certifiio.readthedocs.io/) - SSL 证书包
