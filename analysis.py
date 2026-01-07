@@ -232,7 +232,16 @@ def classify_repo(text: str):
 
 
 def tag_repo(repo: dict):
-    text = f'{repo.get('repo_name', '')} {repo.get('repo_describe', '')}'
+    # 基础文本 （名称 + 描述）
+    base_text = f'{repo.get('repo_name', '')} {repo.get('repo_describe', '')}'
+
+    # 仓库标签
+    repo_topics = repo.get('repo_topics', [])
+    # 如果有标签，增强文本
+    if repo_topics:
+        text = base_text + ' ' + ' '.join(repo_topics)
+    else:
+        text = base_text
     topic, topic_scores = classify_repo(text)
 
     repo['topic'] = topic
