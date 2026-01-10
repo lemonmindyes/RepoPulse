@@ -33,7 +33,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 1. 获取 trending
-    print(args.languages)
     get_trending(languages = args.languages,
                  time_range = args.time_range)
     # 2. 分析 trending topic
