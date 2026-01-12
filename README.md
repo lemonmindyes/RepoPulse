@@ -14,7 +14,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 - **美观的终端界面**：使用 Rich 库展示漂亮的终端界面
 - **多语言支持**：支持 Python、Go、C、C++ 等多种编程语言的仓库
 - **异步爬取**：使用 asyncio 和 aiohttp 实现高效并发爬取，大幅提升数据获取速度
-- **代理支持**：支持通过代理访问 GitHub（默认配置为 http://127.0.0.1:7890）以提高爬取稳定性
+- **代理支持**：支持通过代理访问 GitHub，默认配置为 http://127.0.0.1:7890
 
 ## 📊 话题分类
 
@@ -53,6 +53,11 @@ cd RepoPulse
 2. 安装依赖：
 ```bash
 pip install -r requirements.txt
+```
+
+3. 添加cookie
+```bash
+echo "Cookie=your_cookie" > config.py
 ```
 
 如果项目根目录没有 requirements.txt 文件，可以手动安装依赖：
@@ -101,6 +106,7 @@ RepoPulse/
 ├── crawler.py       # GitHub Trending 仓库爬虫
 ├── analysis.py      # 仓库分析与话题分类
 ├── topic.py         # 话题热度计算
+├── config.py        # 配置文件
 ├── cli.py           # 终端界面展示
 ├── trending.json    # 抓取的仓库数据存储
 └── README.md        # 项目说明文档
