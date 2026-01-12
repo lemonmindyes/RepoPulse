@@ -8,6 +8,8 @@ import aiohttp
 from fake_useragent import UserAgent
 from lxml import etree
 
+from config import Cookie
+
 
 def keep_latest_repo(data: list[dict]) -> list[dict]:
     seen = set()
@@ -23,21 +25,7 @@ def keep_latest_repo(data: list[dict]) -> list[dict]:
     return result
 
 
-# 获取仓库详细页面信息
-# def get_repo_detail_info(repo_url: str, headers: dict):
-#     response = requests.get(repo_url, headers = headers, timeout = 5)
-#     tree = etree.HTML(response.text)
-#
-#     repo_topics = tree.xpath('//div[@class="BorderGrid about-margin"]/div[1]//div[@class="hide-sm hide-md"]'
-#                              '/div[@class="my-3"]')
-#     if not repo_topics:
-#         return []
-#     else:
-#         repo_topics = [s.strip() for s in repo_topics[0].xpath('.//text()') if s.strip()]
-#     return repo_topics
-
-
-async def parse_trending_page(session: aiohttp.ClientSession, url: str, semaphore: asyncio.Semaphore):
+async def get_repo_url(session: aiohttp.ClientSession, url: str, semaphore: asyncio.Semaphore):
     async with semaphore:
         async with session.get(url, proxy = 'http://127.0.0.1:7890') as response:
             html = await response.text()
@@ -45,7 +33,7 @@ async def parse_trending_page(session: aiohttp.ClientSession, url: str, semaphor
     tree = etree.HTML(html)
     articles = tree.xpath('//div[@class="Box"]/div[2]/article')
 
-    page_data = []
+    repo_urls = {}
 
     for article in articles:
         repo_author = article.xpath('./h2/a/span/text()')[0].replace(' /', '').strip()  # 仓库作者
@@ -66,12 +54,9 @@ async def parse_trending_page(session: aiohttp.ClientSession, url: str, semaphor
         texts = article.xpath('./div[2]/span[@class="d-inline-block float-sm-right"]/text()')
         raw = ''.join(texts).strip()
         added_stars = raw.replace(',', '').split()[0]
-        # 获取仓库详细页面信息
-        # repo_url = f'{base_repo_url}/{repo_author}/{repo_name}'
-        # repo_topics = get_repo_detail_info(repo_url, headers)
 
         # 保存信息
-        page_data.append({
+        repo_urls[f'{repo_author}/{repo_name}'] = {
             'repo_author': repo_author,
             'repo_name': repo_name,
             'repo_describe': repo_describe,
@@ -79,9 +64,49 @@ async def parse_trending_page(session: aiohttp.ClientSession, url: str, semaphor
             'repo_stars': repo_stars,
             'repo_forks': repo_forks,
             'added_stars': added_stars,
-            # 'repo_topics': repo_topics
-        })
-    return page_data
+            'repo_url': f'https://github.com/{repo_author}/{repo_name}'
+        }
+    return repo_urls
+
+
+async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, semaphore: asyncio.Semaphore):
+    async with semaphore:
+        async with session.get(repo_info['repo_url'], proxy = 'http://127.0.0.1:7890') as response:
+            html = await response.text()
+
+    tree = etree.HTML(html)
+    # 1、获取watch
+    li_list = tree.xpath('//div[@id="repository-details-container"]/ul/li')
+    if len(li_list) == 3:
+        script = li_list[0].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
+        repo_watch = json.loads(script[5])['props']['watchersCount']
+    else:
+        script = li_list[1].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
+        repo_watch = json.loads(script[5])['props']['watchersCount']
+    repo_info['repo_watch'] = str(repo_watch)
+    # 2、获取issue数
+    repo_issue = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="issues-tab"]/span[2]/text()')
+    if not repo_issue:
+        repo_issue = 0
+    else:
+        repo_issue = repo_issue[0]
+    repo_info['repo_issue'] = repo_issue
+    # 3、获取Pr数
+    repo_pr = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="pull-requests-tab"]/span[2]/text()')[0]
+    repo_info['repo_pr'] = repo_pr
+    # 4、获取commit数
+    repo_commit = tree.xpath('//table[@aria-labelledby="folders-and-files"]/tbody/tr[1]'
+                             '//span[@class="fgColor-default"]/text()')[0].split(' ')[0].replace(',', '')
+    repo_info['repo_commit'] = repo_commit
+    # 5、获取repo_topics
+    topics_div = tree.xpath('//div[@class="hide-sm hide-md"]/div[@class="my-3"]')
+    if not topics_div:
+        repo_topics = []
+    else:
+        a_list = topics_div[0].xpath('./div/a')
+        repo_topics = [a.xpath('./text()')[0].strip() for a in a_list]
+    repo_info['repo_topics'] = repo_topics
+    return repo_info
 
 
 async def get_trending_async(languages: list[str] | None = None, time_range: str = 'daily'):
@@ -102,24 +127,29 @@ async def get_trending_async(languages: list[str] | None = None, time_range: str
             article_urls.append(f'https://github.com/trending/{language}?since={time_range}')
 
     headers = {
-        'User-Agent': UserAgent().edge
+        'User-Agent': UserAgent().edge,
+        'Cookie': Cookie
     }
     ssl_context = ssl.create_default_context(
         cafile = certifi.where()
     )
     connector = aiohttp.TCPConnector(ssl = ssl_context, family = socket.AF_INET, happy_eyeballs_delay = None)
 
-    semaphore = asyncio.Semaphore(10) # 限制并发数量
+    semaphore = asyncio.Semaphore(20) # 限制并发数量
 
     async with aiohttp.ClientSession(headers = headers, connector = connector) as session:
-        tasks = [parse_trending_page(session, url, semaphore) for url in article_urls]
+        # 1、获取所有趋势页面仓库的url
+        tasks = [get_repo_url(session, url, semaphore) for url in article_urls]
         results = await asyncio.gather(*tasks)
+        repo_infos = [value for page in results for key, value in page.items()]
+        repo_infos = keep_latest_repo(repo_infos)
 
-    data = [item for page in results for item in page]
-    data = keep_latest_repo(data)
+        # 2、获取所有仓库的详细信息
+        tasks = [get_repo_detail_info(session, repo_info, semaphore) for repo_info in repo_infos]
+        repo_infos = await asyncio.gather(*tasks)
 
     with open('trending.json', 'w', encoding = 'utf-8') as f:
-        json.dump(data, f, ensure_ascii = False, indent = 4)
+        json.dump(repo_infos, f, ensure_ascii = False, indent = 4)
 
 
 def get_trending(languages: list[str] | None = None, time_range: str = 'daily'):
