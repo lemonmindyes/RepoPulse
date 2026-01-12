@@ -57,7 +57,7 @@ pip install -r requirements.txt
 
 3. 添加cookie
 ```bash
-echo "Cookie=your_cookie" > config.py
+add Cookie in config.py
 ```
 
 如果项目根目录没有 requirements.txt 文件，可以手动安装依赖：
