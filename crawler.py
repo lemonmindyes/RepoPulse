@@ -106,6 +106,10 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
         a_list = topics_div[0].xpath('./div/a')
         repo_topics = [a.xpath('./text()')[0].strip() for a in a_list]
     repo_info['repo_topics'] = repo_topics
+    # 6、获取README.md
+    repo_readme = tree.xpath('//article[@class="markdown-body entry-content container-lg"]//text()')
+    repo_readme = ''.join(repo_readme)
+    repo_info['repo_readme'] = repo_readme
     return repo_info
 
 
