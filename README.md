@@ -78,7 +78,9 @@ python main.py
 你可以使用以下命令行参数来自定义分析：
 
 - `--time-range`: 设置分析时间范围，可选值为 `daily` (每日)、`weekly` (每周)、`monthly` (每月)，默认为 `daily`
-- `--languages`: 指定要分析的编程语言列表，默认为 `python c++ c java javascript typescript go rust`
+- `--languages`: 指定要分析的编程语言列表，默认为 `python c++ c java javascript typescript go rust shell`
+- `--top-k-topics`: 显示最热门的 K 个主题，默认为 5
+- `--top-k-repos`: 显示最热门的 K 个仓库，默认为 5
 
 例如：
 
@@ -88,6 +90,12 @@ python main.py --time-range daily --languages python go
 
 # 分析每周趋势，包含多种语言
 python main.py --time-range weekly --languages python java javascript
+
+# 显示最热门的 K 个主题
+python main.py --top-k-topics 5
+
+# 显示最热门的 K 个仓库
+python main.py --top-k-repos 5
 ```
 
 ### 各模块功能
