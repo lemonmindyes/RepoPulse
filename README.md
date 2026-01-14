@@ -1,4 +1,8 @@
-# RepoPulse - GitHub Trending Topics Analyzer
+<div align="center">
+
+![RepoPulse Logo](./assert/logo.png)
+
+</div>
 
 ![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
