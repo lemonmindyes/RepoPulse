@@ -17,7 +17,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 - **自动抓取 GitHub Trending 仓库**：从多个编程语言分类中获取最新的热门仓库
 - **智能话题分类**：使用 TF-IDF 算法对仓库进行自动分类
 - **热度计算**：基于仓库的每日星数和总星数计算话题热度
-- **美观的终端界面**：使用 Rich 库展示漂亮的终端界面
+- **美观的终端界面**：使用 Rich 库展示漂亮的终端界面，输出SVG图
 - **多语言支持**：支持 Python、Go、C、C++ 等多种编程语言的仓库
 - **异步爬取**：使用 asyncio 和 aiohttp 实现高效并发爬取，大幅提升数据获取速度
 - **代理支持**：支持通过代理访问 GitHub，默认配置为 http://127.0.0.1:7890
@@ -214,7 +214,11 @@ RepoPulse/
    4 │ rossant/awesome-math         │   Python   │   12,584 │       16 │ 0.386 
    5 │ kunal-kushwaha/DSA-Bootcamp… │    Java    │   21,456 │       13 │ 0.144 
 ```
+<div align="center">
 
+![RepoPulse Logo](./assert/repo_pulse.svg)
+
+</div>
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request 来帮助改进这个项目！
