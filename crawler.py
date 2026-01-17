@@ -99,6 +99,8 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
 
     # 3、获取Pr数
     repo_pr = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="pull-requests-tab"]/span[2]/text()')[0]
+    if isinstance(repo_pr, str) and repo_pr.endswith('k'):
+        repo_pr = str(int(float(repo_pr[:-1]) * 1000))
     repo_info['repo_pr'] = repo_pr
 
     # 4、获取commit数
