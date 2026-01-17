@@ -52,7 +52,7 @@ pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
 
 1. 克隆项目：
 ```bash
-git clone https://github.com/your-username/RepoPulse.git
+git clone https://github.com/lemonmindyes/RepoPulse
 cd RepoPulse
 ```
 
