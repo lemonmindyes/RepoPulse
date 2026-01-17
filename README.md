@@ -214,11 +214,7 @@ RepoPulse/
    4 │ rossant/awesome-math         │   Python   │   12,584 │       16 │ 0.386 
    5 │ kunal-kushwaha/DSA-Bootcamp… │    Java    │   21,456 │       13 │ 0.144 
 ```
-<div align="center">
 
-![RepoPulse Logo](./assert/repo_pulse.svg)
-
-</div>
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request 来帮助改进这个项目！
