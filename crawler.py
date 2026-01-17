@@ -73,8 +73,8 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
     async with semaphore:
         async with session.get(repo_info['repo_url'], proxy = 'http://127.0.0.1:7890') as response:
             html = await response.text()
-
     tree = etree.HTML(html)
+
     # 1、获取watch
     li_list = tree.xpath('//div[@id="repository-details-container"]/ul/li')
     if len(li_list) == 3:
@@ -84,20 +84,26 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
         script = li_list[1].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
         repo_watch = json.loads(script[5])['props']['watchersCount']
     repo_info['repo_watch'] = str(repo_watch)
+
     # 2、获取issue数
     repo_issue = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="issues-tab"]/span[2]/text()')
     if not repo_issue:
         repo_issue = 0
     else:
         repo_issue = repo_issue[0]
+    if isinstance(repo_issue, str) and repo_issue.endswith('k'):
+        repo_issue = str(int(float(repo_issue[:-1]) * 1000))
     repo_info['repo_issue'] = repo_issue
+
     # 3、获取Pr数
     repo_pr = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="pull-requests-tab"]/span[2]/text()')[0]
     repo_info['repo_pr'] = repo_pr
+
     # 4、获取commit数
     repo_commit = tree.xpath('//table[@aria-labelledby="folders-and-files"]/tbody/tr[1]'
                              '//span[@class="fgColor-default"]/text()')[0].split(' ')[0].replace(',', '')
     repo_info['repo_commit'] = repo_commit
+
     # 5、获取repo_topics
     topics_div = tree.xpath('//div[@class="hide-sm hide-md"]/div[@class="my-3"]')
     if not topics_div:
@@ -106,10 +112,12 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
         a_list = topics_div[0].xpath('./div/a')
         repo_topics = [a.xpath('./text()')[0].strip() for a in a_list]
     repo_info['repo_topics'] = repo_topics
+
     # 6、获取README.md
     repo_readme = tree.xpath('//article[@class="markdown-body entry-content container-lg"]//text()')
     repo_readme = ''.join(repo_readme)
     repo_info['repo_readme'] = repo_readme
+
     return repo_info
 
 
