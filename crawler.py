@@ -147,7 +147,7 @@ async def get_trending_async(languages: list[str] | None = None, time_range: str
     )
     connector = aiohttp.TCPConnector(ssl = ssl_context, family = socket.AF_INET, happy_eyeballs_delay = None)
 
-    semaphore = asyncio.Semaphore(20) # 限制并发数量
+    semaphore = asyncio.Semaphore(50) # 限制并发数量
 
     async with aiohttp.ClientSession(headers = headers, connector = connector) as session:
         # 1、获取所有趋势页面仓库的url
