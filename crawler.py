@@ -93,6 +93,8 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
         repo_issue = repo_issue[0]
     if isinstance(repo_issue, str) and repo_issue.endswith('k'):
         repo_issue = str(int(float(repo_issue[:-1]) * 1000))
+    elif isinstance(repo_issue, str) and repo_issue.endswith('k+'):
+        repo_issue = str(int(float(repo_issue[:-2]) * 1000))
     repo_info['repo_issue'] = repo_issue
 
     # 3、获取Pr数
