@@ -79,18 +79,18 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
     li_list = tree.xpath('//div[@id="repository-details-container"]/ul/li')
     if len(li_list) == 3:
         script = li_list[0].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
-        repo_watch = json.loads(script[5])['props']['watchersCount']
+        repo_watch = json.loads(script[2])['props']['watchersCount']
     else:
         script = li_list[1].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
-        repo_watch = json.loads(script[5])['props']['watchersCount']
+        repo_watch = json.loads(script[2])['props']['watchersCount']
     repo_info['repo_watch'] = str(repo_watch)
 
     # 2、获取issue数
-    repo_issue = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="issues-tab"]/span[2]/text()')
-    if not repo_issue:
+    repo_issue = tree.xpath('//nav[@aria-label="Repository"]/ul/li[2]/a/span')
+    if len(repo_issue) == 2:
         repo_issue = 0
     else:
-        repo_issue = repo_issue[0]
+        repo_issue = repo_issue[2].xpath('./span[1]/text()')[0]
     if isinstance(repo_issue, str) and repo_issue.endswith('k'):
         repo_issue = str(int(float(repo_issue[:-1]) * 1000))
     elif isinstance(repo_issue, str) and repo_issue.endswith('k+'):
@@ -98,7 +98,11 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
     repo_info['repo_issue'] = repo_issue
 
     # 3、获取Pr数
-    repo_pr = tree.xpath('//div[@class="AppHeader-localBar"]//a[@id="pull-requests-tab"]/span[2]/text()')[0]
+    repo_pr = tree.xpath('//nav[@aria-label="Repository"]/ul/li[3]/a/span')
+    if len(repo_pr) == 2:
+        repo_pr = 0
+    else:
+        repo_pr = repo_pr[2].xpath('./span[1]/text()')[0]
     if isinstance(repo_pr, str) and repo_pr.endswith('k'):
         repo_pr = str(int(float(repo_pr[:-1]) * 1000))
     repo_info['repo_pr'] = repo_pr
@@ -177,5 +181,4 @@ if __name__ == '__main__':
     start = time.time()
     get_trending()
     print(f'耗时：{time.time() - start}秒')
-
 
