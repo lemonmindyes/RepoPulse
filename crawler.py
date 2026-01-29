@@ -109,9 +109,12 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
 
     # 4、获取commit数
     repo_commit = tree.xpath('//table[@aria-labelledby="folders-and-files"]/tbody/tr[1]'
-                             '//span[@class="fgColor-default"]/text()')[0].split(' ')[0].replace(',', '')
+                             '//span[@class="fgColor-default"]/text()')
+    if not repo_commit:
+        repo_commit = 0
+    else:
+        repo_commit = repo_commit[0].split(' ')[0].replace(',', '')
     repo_info['repo_commit'] = repo_commit
-
     # 5、获取repo_topics
     topics_div = tree.xpath('//div[@class="hide-sm hide-md"]/div[@class="my-3"]')
     if not topics_div:
