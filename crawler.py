@@ -138,11 +138,14 @@ async def get_trending_async(languages: list[str] | None = None, time_range: str
         article_urls = [
             'https://github.com/trending', # 默认 trending页面
             f'https://github.com/trending/python?since={time_range}', # python trending页面
+            f'https://github.com/trending/c++?since={time_range}',  # c++ trending页面
+            f'https://github.com/trending/c?since={time_range}',  # c trending页面
+            f'https://github.com/trending/java?since={time_range}',  # java trending页面
+            f'https://github.com/trending/javascript?since={time_range}',  # javascript trending页面
+            f'https://github.com/trending/typescript?since={time_range}'  # typescript trending页面
             f'https://github.com/trending/go?since={time_range}', # go trending页面
-            f'https://github.com/trending/c?since={time_range}', # c trending页面
-            f'https://github.com/trending/c++?since={time_range}', # c++ trending页面
-            f'https://github.com/trending/javascript?since={time_range}', # javascript trending页面
-            f'https://github.com/trending/typescript?since={time_range}' # typescript trending页面
+            f'https://github.com/trending/rust?since={time_range}',  # rust trending页面
+            f'https://github.com/trending/shell?since={time_range}',  # shell trending页面
         ]
     else:
         article_urls = ['https://github.com/trending'] # 默认 trending页面
