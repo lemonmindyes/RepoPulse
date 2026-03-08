@@ -80,9 +80,11 @@ async def get_repo_detail_info(session: aiohttp.ClientSession, repo_info: str, s
     if len(li_list) == 3:
         script = li_list[0].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
         repo_watch = json.loads(script[2])['props']['watchersCount']
-    else:
+    elif len(li_list) == 4:
         script = li_list[1].xpath('//script[@data-target="react-partial.embeddedData"]/text()')
         repo_watch = json.loads(script[2])['props']['watchersCount']
+    else:
+        repo_watch = 0
     repo_info['repo_watch'] = str(repo_watch)
 
     # 2、获取issue数
