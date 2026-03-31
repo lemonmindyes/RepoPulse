@@ -106,4 +106,3 @@ def print_topics_cli_rich(
 
         console.print(table)
         console.print()  # 空行
-    console.save_svg("./repo_pulse.svg", title="GitHub Trending Topics")

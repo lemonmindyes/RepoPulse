@@ -17,7 +17,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 - **自动抓取 GitHub Trending 仓库**：从多个编程语言分类中获取最新的热门仓库
 - **智能话题分类**：使用 TF-IDF 算法对仓库进行自动分类
 - **热度计算**：基于仓库的多个维度加权计算话题热度
-- **美观的终端界面**：使用 Rich 库展示漂亮的终端界面，输出SVG图
+- **美观的终端界面**：使用 Rich 库展示清晰的终端分析结果
 - **多语言支持**：支持 Python、Go、C、C++ 等多种编程语言的仓库
 - **异步爬取**：使用 asyncio 和 aiohttp 实现高效并发爬取，大幅提升数据获取速度
 - **代理支持**：支持通过代理访问 GitHub，默认配置为 http://127.0.0.1:7890
@@ -133,6 +133,115 @@ RepoPulse/
 3. **话题分类**：将仓库归类到预定义的技术话题
 4. **热度计算**：结合增长、动量、规模和活跃度等信号计算话题热度
 5. **结果展示**：在终端中以表格形式展示热门话题和相关仓库
+
+## 🧮 评分公式
+
+当前版本的热点计算分为两层：先算仓库对某个主题的贡献值，再汇总为主题热度。
+
+### 1. 主题归属
+
+仓库不会只强制归到单一主题，而是允许对多个相关主题同时贡献热度。
+
+设某仓库的最佳主题分数为 `best_score`，某主题分数为 `topic_score`，则该仓库会被分配到满足下式的主题中：
+
+```text
+topic_score >= max(min_score, best_score * relative_ratio)
+```
+
+当前默认参数：
+
+```text
+min_score = 0.12
+relative_ratio = 0.55
+```
+
+这样做的目的是减少“硬单分类”带来的误差，让跨领域仓库能够同时影响多个相关主题。
+
+### 2. 仓库信号
+
+对每个仓库，先计算 5 个基础信号。所有信号都基于当前批次仓库的 `P90` 分位数做归一化，避免极大仓库把分数直接拉爆。
+
+```text
+growth_signal = norm(log(1 + added_stars))
+
+momentum_signal = norm(log(1 + added_stars / sqrt(repo_stars + 1)))
+
+scale_signal = norm(log(1 + repo_stars) + 0.6 * log(1 + repo_forks))
+
+activity_signal = norm(log(1 + repo_commit) + 0.7 * log(1 + repo_pr))
+
+issue_pressure = norm(log(1 + repo_issue / (repo_pr + 1)))
+```
+
+其中 `norm(x)` 表示：
+
+```text
+norm(x) = min(max(x / p90, 0), 1)
+```
+
+含义说明：
+
+- `growth_signal`：近期增长强度
+- `momentum_signal`：相对爆发性，小仓库短期暴涨时会更明显
+- `scale_signal`：项目规模和历史沉淀
+- `activity_signal`：近期维护/开发活跃度
+- `issue_pressure`：issue 压力，作为轻度惩罚项使用
+
+### 3. 仓库对主题的贡献值
+
+先计算仓库基础强度：
+
+```text
+base_signal =
+    0.4 * growth_signal
+  + 0.25 * momentum_signal
+  + 0.2 * scale_signal
+  + 0.15 * activity_signal
+```
+
+再计算健康因子：
+
+```text
+health_factor = 1 - 0.12 * issue_pressure
+```
+
+主题匹配强度使用分类器输出的 `topic_score`，并做一个平滑非线性变换：
+
+```text
+topic_fit = topic_score ^ 0.7
+```
+
+于是单个仓库对某个主题的最终贡献值为：
+
+```text
+repo_topic_heat = 100 * topic_fit * base_signal * health_factor
+```
+
+这里的改进意图是：
+
+- 既看“最近热不热”，也看“是不是这个主题本身”
+- 避免总 star 很大但与主题弱相关的仓库挤占榜单
+- 对 issue 压力较高的仓库做轻微降权，而不是一票否决
+
+### 4. 主题总热度
+
+某个主题的总热度为该主题下所有仓库贡献值之和：
+
+```text
+topic_heat = Σ repo_topic_heat
+```
+
+而 `AvgScore` 不是简单平均，而是按贡献值加权后的主题纯度：
+
+```text
+avg_score = Σ(topic_score * repo_topic_heat) / Σ(repo_topic_heat)
+```
+
+这意味着：
+
+- `Heat` 高：说明这个主题整体很热
+- `AvgScore` 高：说明这个主题下的仓库更“纯”，主题边界更清晰
+- 两者一起看，可以区分“泛热度”与“核心热点”
 
 ## 📈 输出示例
 
