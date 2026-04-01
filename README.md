@@ -45,7 +45,7 @@ RepoPulse 是一个 GitHub Trending 仓库分析工具，能够自动抓取 GitH
 ### 依赖要求
 
 ```bash
-pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
+pip install lxml scikit-learn rich aiohttp certifi
 ```
 
 ### 安装步骤
@@ -61,14 +61,19 @@ cd RepoPulse
 pip install -r requirements.txt
 ```
 
-3. 添加cookie
+3. 添加 Cookie，并可选配置 GitHub Token（推荐）
 ```bash
 add Cookie in config.py
+
+# optional but recommended for faster crawling
+add GitHubToken in config.py
 ```
+
+也可以不写入 `config.py`，而是通过环境变量传入 `GITHUB_TOKEN`。
 
 如果项目根目录没有 requirements.txt 文件，可以手动安装依赖：
 ```bash
-pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
+pip install lxml scikit-learn rich aiohttp certifi
 ```
 
 ## 🚀 使用方法
@@ -78,6 +83,15 @@ pip install requests lxml fake_useragent scikit-learn rich aiohttp certifi
 ```bash
 python main.py
 ```
+
+推荐使用 `GITHUB_TOKEN` 启动，这样 `crawler.py` 会默认走 GitHub GraphQL 批量接口，速度明显快于逐仓库 HTML 抓取：
+
+```bash
+$env:GITHUB_TOKEN="your_token"
+python main.py
+```
+
+如果没有 `GITHUB_TOKEN`，程序会自动回退到较慢但兼容的 HTML 抓取模式。
 
 ### 命令行参数
 
@@ -106,7 +120,7 @@ python main.py --top-k-repos 5
 
 ### 各模块功能
 
-- **crawler.py**: 抓取 GitHub Trending 仓库数据（支持异步并发和代理访问）
+- **crawler.py**: 抓取 GitHub Trending 仓库数据，默认优先使用 GitHub GraphQL 批量接口，无 token 时自动回退到 HTML 抓取
 - **analysis.py**: 分析仓库并进行话题分类
 - **topic.py**: 计算话题热度
 - **cli.py**: 在终端中展示结果
@@ -128,7 +142,7 @@ RepoPulse/
 
 ## 🔍 工作原理
 
-1. **数据抓取**：从 GitHub Trending 页面抓取热门仓库信息
+1. **数据抓取**：从 GitHub Trending 页面抓取热门仓库列表，并优先通过 GitHub GraphQL 批量获取仓库详情
 2. **文本分析**：使用 TF-IDF 算法分析仓库名称、描述、标签和 README
 3. **话题分类**：将仓库归类到预定义的技术话题
 4. **热度计算**：结合增长、动量、规模和活跃度等信号计算话题热度
@@ -383,7 +397,6 @@ avg_score = Σ(topic_score * repo_topic_heat) / Σ(repo_topic_heat)
 
 - 感谢所有开源贡献者
 - 使用了以下优秀的开源库：
-  - [requests](https://requests.readthedocs.io/) - HTTP 请求库
   - [lxml](https://lxml.de/) - XML 和 HTML 处理库
   - [scikit-learn](https://scikit-learn.org/) - 机器学习库
   - [rich](https://rich.readthedocs.io/) - 终端美化库

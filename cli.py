@@ -1,8 +1,20 @@
+import sys
+
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 from rich import box
+
+
+_STDOUT_ENCODING = (getattr(sys.stdout, "encoding", "") or "").lower()
+_USE_ASCII_LABELS = "gbk" in _STDOUT_ENCODING or "cp936" in _STDOUT_ENCODING
+TITLE_PREFIX = (
+    "GitHub Trending Topics" if _USE_ASCII_LABELS else "🔥 GitHub Trending Topics"
+)
+TOPIC_PREFIX = "Topic" if _USE_ASCII_LABELS else "🔥"
+STAR_LABEL = "Stars" if _USE_ASCII_LABELS else "⭐ Stars"
+TREND_LABEL_PREFIX = "Trend" if _USE_ASCII_LABELS else "🚀"
 
 
 def print_topics_cli_rich(
@@ -21,7 +33,7 @@ def print_topics_cli_rich(
 
     console.print(
         Panel(
-            Text("🔥 GitHub Trending Topics", justify="center", style="bold white"),
+            Text(TITLE_PREFIX, justify="center", style="bold white"),
             style="bold cyan",
             padding=(1, 2),
         )
@@ -41,7 +53,7 @@ def print_topics_cli_rich(
             heat_style = "bold yellow"
 
         header = Text()
-        header.append(f"🔥 {topic}\n", style="bold magenta")
+        header.append(f"{TOPIC_PREFIX} {topic}\n", style="bold magenta")
         header.append(f"Heat: ", style="dim")
         header.append(f"{heat:.2f}", style=heat_style)
         header.append("   Repos: ", style="dim")
@@ -66,8 +78,8 @@ def print_topics_cli_rich(
         table.add_column("#", justify="right", style="dim", width=3)
         table.add_column("Repository", style="bold white", min_width=28)
         table.add_column("Lang", justify="center", style="green")
-        table.add_column("⭐ Stars", justify="right")
-        table.add_column(f"🚀 {time_range}", justify="right")
+        table.add_column(STAR_LABEL, justify="right")
+        table.add_column(f"{TREND_LABEL_PREFIX} {time_range}", justify="right")
         table.add_column("Score", justify="right", style="cyan")
 
         # Repo 排序：date_range + topic_score
