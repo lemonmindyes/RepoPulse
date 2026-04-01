@@ -101,6 +101,8 @@ python main.py
 - `--languages`: 指定要分析的编程语言列表，默认为 `python c++ c java javascript typescript go rust shell`
 - `--top-k-topics`: 显示最热门的 K 个主题，默认为 5
 - `--top-k-repos`: 显示最热门的 K 个仓库，默认为 5
+- `--trending`: 独立趋势模式，`local` 从本地历史直接输出所有主题趋势，`web` 先抓取最新数据再结合本地历史输出所有主题趋势
+- `--history-limit`: 趋势模式下最多显示多少个历史点，默认为 20
 
 例如：
 
@@ -116,11 +118,18 @@ python main.py --top-k-topics 5
 
 # 显示最热门的 K 个仓库
 python main.py --top-k-repos 5
+
+# 仅根据本地历史输出所有主题趋势
+python main.py --trending local
+
+# 先抓取最新数据，再结合本地历史输出所有主题趋势
+python main.py --trending web
 ```
 
 ### 各模块功能
 
 - **crawler.py**: 抓取 GitHub Trending 仓库数据，默认优先使用 GitHub GraphQL 批量接口，无 token 时自动回退到 HTML 抓取
+- **history_store.py**: 存储和读取按时间累积的话题热度历史快照
 - **analysis.py**: 分析仓库并进行话题分类
 - **topic.py**: 计算话题热度
 - **cli.py**: 在终端中展示结果
@@ -133,10 +142,12 @@ RepoPulse/
 ├── main.py          # 主程序入口
 ├── crawler.py       # GitHub Trending 仓库爬虫
 ├── analysis.py      # 仓库分析与话题分类
+├── history_store.py # 话题历史快照存储
 ├── topic.py         # 话题热度计算
 ├── config.py        # 配置文件
 ├── cli.py           # 终端界面展示
-├── trending.json    # 抓取的仓库数据存储
+├── trending.json    # 当前抓取结果（紧凑存储，不包含 README 正文）
+├── history/         # 按时间存储的话题热度历史快照
 └── README.md        # 项目说明文档
 ```
 
@@ -146,7 +157,9 @@ RepoPulse/
 2. **文本分析**：使用 TF-IDF 算法分析仓库名称、描述、标签和 README
 3. **话题分类**：将仓库归类到预定义的技术话题
 4. **热度计算**：结合增长、动量、规模和活跃度等信号计算话题热度
-5. **结果展示**：在终端中以表格形式展示热门话题和相关仓库
+5. **历史快照**：每次运行都会把主题热度按时间写入 `history/topic_snapshots/`
+6. **趋势模式**：通过 `--trending local|web` 独立查看所有主题的热度变化趋势
+7. **结果展示**：在终端中以表格和趋势图的形式展示热门话题与历史变化
 
 ## 🧮 评分公式
 

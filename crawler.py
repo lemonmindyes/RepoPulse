@@ -201,6 +201,10 @@ def _apply_graphql_repo_data(repo_info: dict, repo_node: dict):
     repo_info["repo_readme"] = _pick_graphql_readme(repo_node)
 
 
+def _compact_repo_for_disk(repo_info: dict) -> dict:
+    return {key: value for key, value in repo_info.items() if key != "repo_readme"}
+
+
 async def _fetch_graphql_batch(
     session: aiohttp.ClientSession,
     batch: list[dict],
@@ -496,11 +500,16 @@ async def get_trending_async(
             repo_infos = [await task for task in asyncio.as_completed(detail_tasks)]
 
     with open("trending.json", "w", encoding="utf-8") as f:
-        json.dump(repo_infos, f, ensure_ascii=False, separators=(",", ":"))
+        compact_repo_infos = [
+            _compact_repo_for_disk(repo_info) for repo_info in repo_infos
+        ]
+        json.dump(compact_repo_infos, f, ensure_ascii=False, separators=(",", ":"))
+
+    return repo_infos
 
 
 def get_trending(languages: list[str] | None = None, time_range: str = "daily"):
-    asyncio.run(get_trending_async(languages, time_range))
+    return asyncio.run(get_trending_async(languages, time_range))
 
 
 if __name__ == "__main__":
