@@ -333,14 +333,9 @@ async def get_repo_url(
         else:
             repo_describe = article.xpath("./p/text()")[0].strip()
         # 仓库语言
-        if not article.xpath(
-            './div[2]/span[@class="tmp-mr-3 d-inline-block ml-0"]/span[2]/text()'
-        ):
-            repo_language = ""
-        else:
-            repo_language = article.xpath(
-                './div[2]/span[@class="tmp-mr-3 d-inline-block ml-0"]/span[2]/text()'
-            )[0]
+        repo_language = article.xpath(
+            'string(.//span[@itemprop="programmingLanguage"])'
+        ).strip()
         repo_stars = (
             article.xpath("./div[2]/a[1]/text()")[0].strip().replace(",", "")
         )  # 仓库 stars
